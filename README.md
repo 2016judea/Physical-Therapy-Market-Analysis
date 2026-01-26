@@ -1,4 +1,4 @@
-# Mason PT Data Pipeline
+# Physical Therapy Payer Reimbursement Analysis
 
 Aggregate payer reimbursement data from Transparency in Coverage (TiC) machine-readable files for PT contract negotiation analysis.
 
@@ -54,15 +54,15 @@ Payer Index → Downloader → Stream Parser → DuckDB
 
 ## Key Commands
 
-| Command | Description |
-|---------|-------------|
-| `tic status` | Show database statistics |
-| `tic payers` | List configured payers |
-| `tic cpts` | List PT CPT codes |
-| `tic ingest` | Download and parse MRF files |
-| `tic summary` | Rate statistics by CPT |
-| `tic compare-payers <cpt>` | Compare payers for a CPT |
-| `tic query "<sql>"` | Run custom SQL |
+| Command                    | Description                  |
+| -------------------------- | ---------------------------- |
+| `tic status`               | Show database statistics     |
+| `tic payers`               | List configured payers       |
+| `tic cpts`                 | List PT CPT codes            |
+| `tic ingest`               | Download and parse MRF files |
+| `tic summary`              | Rate statistics by CPT       |
+| `tic compare-payers <cpt>` | Compare payers for a CPT     |
+| `tic query "<sql>"`        | Run custom SQL               |
 
 ## Next Steps
 
