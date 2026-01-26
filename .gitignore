@@ -1,0 +1,8 @@
+.DS_Store
+src/__pycache__*
+
+data/*
+reports/*
+logs/*
+
+*.pyc

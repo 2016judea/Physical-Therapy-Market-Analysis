@@ -1,0 +1,63 @@
+# PT-relevant CPT codes to extract from TiC files
+# Only rates for these codes will be stored
+
+cpt_codes:
+  # === Evaluations ===
+  - "97161"  # PT eval, low complexity
+  - "97162"  # PT eval, moderate complexity
+  - "97163"  # PT eval, high complexity
+  - "97164"  # PT re-evaluation
+
+  # === Therapeutic Procedures ===
+  - "97110"  # Therapeutic exercises
+  - "97112"  # Neuromuscular re-education
+  - "97116"  # Gait training
+  - "97140"  # Manual therapy
+  - "97530"  # Therapeutic activities
+  - "97535"  # Self-care/home management training
+  - "97537"  # Community/work reintegration
+  - "97542"  # Wheelchair management
+  - "97545"  # Work hardening (first 2 hours)
+  - "97546"  # Work hardening (each additional hour)
+  - "97750"  # Physical performance test
+  - "97755"  # Assistive technology assessment
+  - "97760"  # Orthotic management/training
+  - "97761"  # Prosthetic training
+  - "97763"  # Orthotic/prosthetic mgmt, subsequent
+
+  # === Modalities - Supervised ===
+  - "97010"  # Hot/cold packs
+  - "97012"  # Mechanical traction
+  - "97014"  # Electrical stimulation (unattended)
+  - "97016"  # Vasopneumatic devices
+  - "97018"  # Paraffin bath
+  - "97022"  # Whirlpool
+  - "97024"  # Diathermy
+
+  # === Modalities - Constant Attendance ===
+  - "97032"  # Electrical stimulation (manual)
+  - "97033"  # Iontophoresis
+  - "97034"  # Contrast baths
+  - "97035"  # Ultrasound
+  - "97036"  # Hubbard tank
+
+  # === Dry Needling ===
+  - "20560"  # Dry needling, 1-2 muscles
+  - "20561"  # Dry needling, 3+ muscles
+
+  # === Group Therapy ===
+  - "97150"  # Group therapeutic procedures
+
+  # === Aquatic Therapy ===
+  - "97113"  # Aquatic therapy
+
+  # === Tests & Measurements ===
+  - "97542"  # Wheelchair assessment
+  - "97750"  # Physical performance test
+  - "97755"  # Assistive technology assessment
+
+  # === E/M (if billed by PT) ===
+  - "99211"  # Office visit, minimal
+  - "99212"  # Office visit, straightforward
+  - "99213"  # Office visit, low complexity
+  - "99214"  # Office visit, moderate complexity
