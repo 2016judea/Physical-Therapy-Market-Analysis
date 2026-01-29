@@ -1,44 +1,72 @@
 # Payer index file URLs for TiC MRF data
-# Focus: Major payers operating in Minnesota
+# Focus: Minnesota-based regional payers (not national)
 # Last verified: January 2026
 
 payers:
-  # Blue Cross Blue Shield of Minnesota - largest MN payer
-  # Excellent compliance rating (5/5) - files update monthly on 1st
-  # Pattern: https://mktg.bluecrossmn.com/mrf/YYYY/YYYY-MM-01_Blue_Cross_and_Blue_Shield_of_Minnesota_index.json
-  - name: "BCBS Minnesota"
-    index_url: "https://mktg.bluecrossmn.com/mrf/2026/2026-01-01_Blue_Cross_and_Blue_Shield_of_Minnesota_index.json"
-    enabled: true
-    notes: "Largest commercial payer in MN. 5/5 compliance. ~390M rate records."
-
-  # UnitedHealthcare - headquartered in Minnetonka, MN
-  # Files behind API, need to access via their portal structure
-  # Note: UHC has rate-limiting on their API
-  - name: "UnitedHealthcare"
-    index_url: "https://transparency-in-coverage.uhc.com/api/v1/uhc/blobs/"
-    enabled: true
-    notes: "HQ in Minnetonka, MN. Large national footprint. API-gated access."
-
-  # Medica - MN-based regional payer
-  # Uses HealthSparq portal for MRF hosting
-  - name: "Medica"
-    index_url: "https://web.healthsparq.com/app/public/api/v1/mrf/healthsparq/MEDICA_I/MEDICA"
-    enabled: true
-    notes: "MN-based regional payer. Uses HealthSparq platform."
-
   # HealthPartners - MN-based integrated health system
-  # Excellent compliance (5/5) - direct ZIP downloads (no standard index)
-  # Multiple networks: HP-Select, Open-Access, Cornerstone, Achieve, etc.
-  # URL pattern: https://mrfproddestinationdata.blob.core.windows.net/mrf-output/YYYY-MM-01_HealthPartners_{network}_in-network-rates.zip
+  # Excellent compliance (5/5) - direct ZIP downloads
+  # These are MN-SPECIFIC files with MN providers
   - name: "HealthPartners"
     index_url: "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_HP-Select_in-network-rates.zip"
     enabled: true
-    notes: "MN-based integrated system. Direct ZIP downloads. Start with HP-Select network."
-    # Additional network files available:
-    # - HealthPartners_Open-Access+Simplica_MRF
-    # - HealthPartners_Cornerstone_MRF
-    # - HealthPartners_Achieve-Large-Employer_MRF
-    # - HealthPartners_State-of-MN_MRF
+    file_type: "zip"
+    notes: "MN-based integrated system. MN-specific data. ~687MB per network."
+    # Additional MN networks to process (19 total networks):
+    additional_files:
+      # Core MN networks (already loaded)
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Open-Access+Simplica_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Cornerstone_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Achieve-Large-Employer_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Achieve-Small-Employer+Peak_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_State-of-MN_in-network-rates.zip"
+      # Additional networks
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Coborns_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Essentia_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Essentia-ND_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_MercyOne_Tier1_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Monument-Health-Caregiver_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Northern-Trust_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Olivia_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Spencer-Mahaska_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Trinity-ND_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_UIHC-Tier1_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_UIHC-Tier2_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_VGM_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Waterloo-School_in-network-rates.zip"
+
+  # UCare - MN-based nonprofit (Medicare/Medicaid focused)
+  - name: "UCare"
+    index_url: "https://ucm-p-001.sitecorecontenthub.cloud/api/public/content/ucare_toc.json?download=true"
+    enabled: true
+    notes: "MN-based nonprofit. Medicare/Medicaid focused."
+
+  # Medica - MN-based regional payer  
+  # Uses HealthSparq portal for MRF hosting
+  - name: "Medica"
+    index_url: "https://web.healthsparq.com/healthsparq/public/#/one/insurerCode=MEDICA_I&brandCode=MEDICA&productCode=MRF"
+    enabled: false
+    notes: "MN-based regional. HealthSparq portal - need API access."
+
+  # Blue Cross Blue Shield of Minnesota
+  # DISABLED: 11k+ large files, too slow for now
+  - name: "BCBS Minnesota"
+    index_url: "https://mktg.bluecrossmn.com/mrf/2026/2026-01-01_Blue_Cross_and_Blue_Shield_of_Minnesota_index.json"
+    enabled: false
+    notes: "11k+ files, very slow. Disabled for now."
+
+  # UnitedHealthcare - headquartered in Minnetonka, MN
+  # DISABLED: API returns employer-level files (100k+), not network-level
+  - name: "UnitedHealthcare"
+    index_url: "https://transparency-in-coverage.uhc.com/api/v1/uhc/blobs/"
+    enabled: false
+    notes: "Employer-level files, not network-level. Too complex for now."
+
+  # Aetna - National payer
+  # DISABLED: National data
+  - name: "Aetna"
+    index_url: "https://health1.aetna.com/app/public/#/one/insurerCode=AETNACVS_I&brandCode=ALICFI/machine-readable-transparency-in-coverage"
+    enabled: false
+    notes: "National payer. Disabled - focus on MN-specific payers."
 
   # PreferredOne - MN regional (smaller)
   - name: "PreferredOne"
@@ -46,35 +74,20 @@ payers:
     enabled: false
     notes: "Smaller MN regional - need to locate MRF URL"
 
-  # Aetna - National payer with MN presence
-  # Uses HealthSparq portal - multiple index files by plan type
-  - name: "Aetna"
-    index_url: "https://health1.aetna.com/app/public/#/one/insurerCode=AETNACVS_I&brandCode=ALICFI/machine-readable-transparency-in-coverage"
-    enabled: true
-    notes: "National payer. Uses HealthSparq. Multiple plan indexes."
-
-  # Cigna - National payer with MN presence
-  # Large files (up to 1TB), uses CloudFront CDN
+  # Cigna - National payer
   - name: "Cigna"
     index_url: "https://www.cigna.com/legal/compliance/machine-readable-files"
     enabled: false
-    notes: "National payer. Very large files. CloudFront CDN delivery."
+    notes: "National payer. Disabled."
 
-  # Humana - Smaller MN presence
+  # Humana - National payer
   - name: "Humana"
     index_url: "https://developers.humana.com/synthetichealth/Resource/PCTFilesList"
     enabled: false
-    notes: "Smaller MN presence. Enable if needed."
+    notes: "National payer. Disabled."
 
 
 # Geographic filter - Minnesota only
 geography:
   states:
     - "MN"
-  # Twin Cities metro area ZIP prefixes (optional, for narrower focus)
-  # zip_prefixes:
-  #   - "550"  # Minneapolis
-  #   - "551"  # St. Paul
-  #   - "553"  # Minneapolis suburbs
-  #   - "554"  # Rochester area
-  #   - "556"  # Duluth area

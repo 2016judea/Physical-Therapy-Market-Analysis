@@ -158,12 +158,13 @@ def parse_tic_file_simple(
     target_cpts = load_cpt_codes()
     target_states = get_target_states()
     
-    # Load target NPIs if not provided (from NPPES table)
-    if target_npis is None:
-        target_npis = get_target_npis()
+    # Use provided target_npis if passed, otherwise no NPI filtering
+    # For MN-based payers (HealthPartners, UCare), pass None (no filter needed)
+    # For national payers (BCBS, UHC), pass specific NPIs to filter
 
-    # Extract metadata
-    entity_name = data.get("reporting_entity_name", payer_name)
+    # Extract metadata - use payer_name we passed, not file's reporting_entity_name
+    # (BCBS files have various entity names like "Arkansas BCBS" even from MN index)
+    entity_name = payer_name
     last_updated_str = data.get("last_updated_on", "")
     try:
         last_updated = date.fromisoformat(last_updated_str) if last_updated_str else None
@@ -203,7 +204,16 @@ def parse_tic_file_simple(
                 if ref_id in provider_map:
                     provider_list.extend(provider_map[ref_id])
 
-            # If no provider refs resolved, skip (can't filter by state)
+            # Handle inline provider_groups (UCare format) if no provider_references
+            if not provider_list:
+                for pg in neg_rate.get("provider_groups", []):
+                    npis = pg.get("npi", [])
+                    tin_info = pg.get("tin", {})
+                    tin_value = tin_info.get("value") if isinstance(tin_info, dict) else None
+                    for npi in npis:
+                        provider_list.append({"npi": str(npi), "tin": tin_value})
+
+            # If still no providers, skip
             if not provider_list:
                 continue
 

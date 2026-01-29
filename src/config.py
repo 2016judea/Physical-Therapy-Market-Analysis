@@ -12,6 +12,7 @@ class PayerConfig(BaseModel):
     index_url: str
     enabled: bool = True
     notes: Optional[str] = None
+    additional_files: Optional[list[str]] = None
 
 
 class GeographyConfig(BaseModel):
