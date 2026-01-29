@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import duckdb
+import pandas as pd
 
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
 DB_PATH = Path(__file__).parent.parent / "data" / "rates.duckdb"
@@ -64,7 +65,7 @@ def generate_type2_report(conn) -> str:
     type2_npis = conn.execute("""
         SELECT npi, provider_name 
         FROM nppes_providers 
-        WHERE provider_type = '2'
+        WHERE provider_type = 'Organization'
     """).fetchdf()
     
     if type2_npis.empty:
@@ -159,7 +160,7 @@ def generate_type1_report(conn) -> str:
     type1_npis = conn.execute("""
         SELECT npi, provider_name 
         FROM nppes_providers 
-        WHERE provider_type = '1'
+        WHERE provider_type = 'Individual'
     """).fetchdf()
     
     if type1_npis.empty:
@@ -387,11 +388,11 @@ def generate_coverage_summary(conn) -> str:
     lines.append("─" * 85)
     
     for _, row in npi_stats.iterrows():
-        name = (row['provider_name'] or 'Unknown')[:28]
-        city = (row['city'] or '-')[:16]
-        ptype = row['provider_type'] or '-'
-        payers = row['payers'] if row['payers'] else 0
-        rates = row['rates'] if row['rates'] else 0
+        name = str(row['provider_name'] or 'Unknown')[:28] if pd.notna(row['provider_name']) else 'Unknown'
+        city = str(row['city'] or '-')[:16] if pd.notna(row['city']) else '-'
+        ptype = str(row['provider_type'] or '-') if pd.notna(row['provider_type']) else '-'
+        payers = int(row['payers']) if pd.notna(row['payers']) else 0
+        rates = int(row['rates']) if pd.notna(row['rates']) else 0
         lines.append(
             f"{row['npi']:<14}{name:<30}{city:<18}{ptype:<6}{payers:<9}{rates:<8,}"
         )
