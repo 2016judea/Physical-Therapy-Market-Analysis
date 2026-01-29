@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Generate competitive position reports for Maverick PT.
+Generate competitive position reports for PT providers.
 
 Creates two reports:
-1. NPI Type 1 Comparison - Individual PTs (Mason Richlen, Eric Niemyer vs competitors)
-2. NPI Type 2 Comparison - Clinics (Maverick vs competitor clinics)
+1. NPI Type 1 Comparison - Individual PTs vs competitors
+2. NPI Type 2 Comparison - Clinics vs competitor clinics
 
 Usage:
     python scripts/generate_competitive_report.py
@@ -21,10 +21,10 @@ import duckdb
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
 DB_PATH = Path(__file__).parent.parent / "data" / "rates.duckdb"
 
-# Maverick NPIs
-MAVERICK_TYPE2_NPI = "1073185393"  # Maverick Physiotherapy LLC
-MASON_NPI = "1326610783"  # Mason Richlen DPT, PT
-ERIC_NPI = "1699341354"  # Eric Niemyer DPT, PT
+# Target NPIs (customize these for your analysis)
+PRIMARY_TYPE2_NPI = "1073185393"  # Primary clinic
+PRIMARY_TYPE1_NPI_A = "1326610783"  # Primary individual A
+PRIMARY_TYPE1_NPI_B = "1699341354"  # Primary individual B
 
 
 def get_cpt_descriptions():
@@ -103,7 +103,7 @@ def generate_type2_report(conn) -> str:
         
         lines.append(f"\n## {payer}\n")
         lines.append("```")
-        lines.append(f"{'CPT':<8}{'Description':<22}{'Maverick':<11}{'Rank':<7}{'Lowest':<30}{'Highest':<30}")
+        lines.append(f"{'CPT':<8}{'Description':<22}{'Our Rate':<11}{'Rank':<7}{'Lowest':<30}{'Highest':<30}")
         lines.append("─" * 108)
         
         # Get CPT codes with data
@@ -119,13 +119,13 @@ def generate_type2_report(conn) -> str:
             
             total_providers = len(cpt_rates)
             
-            # Get Maverick's rate and rank
-            maverick_row = cpt_rates[cpt_rates['npi'] == MAVERICK_TYPE2_NPI]
-            if maverick_row.empty:
+            # Get primary clinic's rate and rank
+            primary_row = cpt_rates[cpt_rates['npi'] == PRIMARY_TYPE2_NPI]
+            if primary_row.empty:
                 continue
             
-            maverick_rate = maverick_row['median_rate'].values[0]
-            maverick_rank = cpt_rates[cpt_rates['npi'] == MAVERICK_TYPE2_NPI].index[0] + 1
+            primary_rate = primary_row['median_rate'].values[0]
+            primary_rank = cpt_rates[cpt_rates['npi'] == PRIMARY_TYPE2_NPI].index[0] + 1
             
             # Get lowest and highest
             lowest_row = cpt_rates.iloc[-1]
@@ -140,7 +140,7 @@ def generate_type2_report(conn) -> str:
             highest_str = f"${highest_row['median_rate']:.2f} ({highest_name})"
             
             lines.append(
-                f"{cpt:<8}{desc:<22}${maverick_rate:<10.2f}{maverick_rank}/{total_providers:<5}{lowest_str:<30}{highest_str:<30}"
+                f"{cpt:<8}{desc:<22}${primary_rate:<10.2f}{primary_rank}/{total_providers:<5}{lowest_str:<30}{highest_str:<30}"
             )
         
         lines.append("```\n")
@@ -197,7 +197,7 @@ def generate_type1_report(conn) -> str:
         
         lines.append(f"\n## {payer}\n")
         lines.append("```")
-        lines.append(f"{'CPT':<8}{'Description':<22}{'Mason R.':<11}{'Rank':<7}{'Eric N.':<11}{'Rank':<7}{'Lowest':<28}{'Highest':<28}")
+        lines.append(f"{'CPT':<8}{'Description':<22}{'Indiv A':<11}{'Rank':<7}{'Indiv B':<11}{'Rank':<7}{'Lowest':<28}{'Highest':<28}")
         lines.append("─" * 122)
         
         # Get CPT codes with data
@@ -213,30 +213,30 @@ def generate_type1_report(conn) -> str:
             
             total_providers = len(cpt_rates)
             
-            # Get Mason's rate and rank
-            mason_row = cpt_rates[cpt_rates['npi'] == MASON_NPI]
-            if not mason_row.empty:
-                mason_rate = mason_row['median_rate'].values[0]
-                mason_rank = cpt_rates[cpt_rates['npi'] == MASON_NPI].index[0] + 1
-                mason_str = f"${mason_rate:.2f}"
-                mason_rank_str = f"{mason_rank}/{total_providers}"
+            # Get Individual A's rate and rank
+            indiv_a_row = cpt_rates[cpt_rates['npi'] == PRIMARY_TYPE1_NPI_A]
+            if not indiv_a_row.empty:
+                indiv_a_rate = indiv_a_row['median_rate'].values[0]
+                indiv_a_rank = cpt_rates[cpt_rates['npi'] == PRIMARY_TYPE1_NPI_A].index[0] + 1
+                indiv_a_str = f"${indiv_a_rate:.2f}"
+                indiv_a_rank_str = f"{indiv_a_rank}/{total_providers}"
             else:
-                mason_str = "N/A"
-                mason_rank_str = "-"
+                indiv_a_str = "N/A"
+                indiv_a_rank_str = "-"
             
-            # Get Eric's rate and rank
-            eric_row = cpt_rates[cpt_rates['npi'] == ERIC_NPI]
-            if not eric_row.empty:
-                eric_rate = eric_row['median_rate'].values[0]
-                eric_rank = cpt_rates[cpt_rates['npi'] == ERIC_NPI].index[0] + 1
-                eric_str = f"${eric_rate:.2f}"
-                eric_rank_str = f"{eric_rank}/{total_providers}"
+            # Get Individual B's rate and rank
+            indiv_b_row = cpt_rates[cpt_rates['npi'] == PRIMARY_TYPE1_NPI_B]
+            if not indiv_b_row.empty:
+                indiv_b_rate = indiv_b_row['median_rate'].values[0]
+                indiv_b_rank = cpt_rates[cpt_rates['npi'] == PRIMARY_TYPE1_NPI_B].index[0] + 1
+                indiv_b_str = f"${indiv_b_rate:.2f}"
+                indiv_b_rank_str = f"{indiv_b_rank}/{total_providers}"
             else:
-                eric_str = "N/A"
-                eric_rank_str = "-"
+                indiv_b_str = "N/A"
+                indiv_b_rank_str = "-"
             
-            # Skip if neither Mason nor Eric has data
-            if mason_str == "N/A" and eric_str == "N/A":
+            # Skip if neither individual has data
+            if indiv_a_str == "N/A" and indiv_b_str == "N/A":
                 continue
             
             # Get lowest and highest
@@ -252,7 +252,7 @@ def generate_type1_report(conn) -> str:
             highest_str = f"${highest_row['median_rate']:.2f} ({highest_name})"
             
             lines.append(
-                f"{cpt:<8}{desc:<22}{mason_str:<11}{mason_rank_str:<7}{eric_str:<11}{eric_rank_str:<7}{lowest_str:<28}{highest_str:<28}"
+                f"{cpt:<8}{desc:<22}{indiv_a_str:<11}{indiv_a_rank_str:<7}{indiv_b_str:<11}{indiv_b_rank_str:<7}{lowest_str:<28}{highest_str:<28}"
             )
         
         lines.append("```\n")
@@ -261,12 +261,12 @@ def generate_type1_report(conn) -> str:
 
 
 def generate_renegotiation_opportunities(conn) -> str:
-    """Generate report of Maverick rates below market median."""
+    """Generate report of primary provider rates below market median."""
     cpt_desc = get_cpt_descriptions()
     
-    # Maverick NPIs (Type 2 clinic + Type 1 individuals)
-    maverick_npis = [MAVERICK_TYPE2_NPI, MASON_NPI, ERIC_NPI]
-    maverick_npi_list = ",".join(f"'{n}'" for n in maverick_npis)
+    # Primary NPIs (Type 2 clinic + Type 1 individuals)
+    primary_npis = [PRIMARY_TYPE2_NPI, PRIMARY_TYPE1_NPI_A, PRIMARY_TYPE1_NPI_B]
+    primary_npi_list = ",".join(f"'{n}'" for n in primary_npis)
     
     # Get payer medians for each CPT code (across all providers)
     payer_medians = conn.execute("""
@@ -278,30 +278,30 @@ def generate_renegotiation_opportunities(conn) -> str:
         GROUP BY payer_name, billing_code
     """).fetchdf()
     
-    # Get Maverick's median rates
-    maverick_rates = conn.execute(f"""
+    # Get primary provider's median rates
+    primary_rates = conn.execute(f"""
         SELECT 
             payer_name,
             billing_code,
-            MEDIAN(negotiated_rate) as maverick_rate
+            MEDIAN(negotiated_rate) as our_rate
         FROM rates
-        WHERE npi IN ({maverick_npi_list})
+        WHERE npi IN ({primary_npi_list})
         GROUP BY payer_name, billing_code
     """).fetchdf()
     
-    if maverick_rates.empty:
-        return "No Maverick rate data available.\n"
+    if primary_rates.empty:
+        return "No rate data available for primary providers.\n"
     
     # Merge and calculate difference
-    merged = maverick_rates.merge(
+    merged = primary_rates.merge(
         payer_medians, 
         on=['payer_name', 'billing_code'], 
         how='inner'
     )
     
-    merged['pct_below'] = ((merged['maverick_rate'] - merged['payer_median']) / merged['payer_median']) * 100
+    merged['pct_below'] = ((merged['our_rate'] - merged['payer_median']) / merged['payer_median']) * 100
     
-    # Filter to only where Maverick is below median
+    # Filter to only where primary provider is below median
     below_median = merged[merged['pct_below'] < 0].copy()
     
     if below_median.empty:
@@ -314,19 +314,19 @@ def generate_renegotiation_opportunities(conn) -> str:
     # Actually, let's get top 10 most below, then sort by payer/CPT for display
     top10 = below_median.nsmallest(10, 'pct_below').sort_values(['payer_name', 'billing_code'])
     
-    lines = ["# Renegotiation Opportunities (Maverick Rates Below Market)\n"]
+    lines = ["# Renegotiation Opportunities (Rates Below Market)\n"]
     lines.append(f"*Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}*\n")
-    lines.append("*Top 10 rates where Maverick/Mason/Eric are most below market median*\n")
+    lines.append("*Top 10 rates where primary providers are most below market median*\n")
     
     lines.append("```")
-    lines.append(f"{'Payer':<19}{'CPT':<8}{'Description':<23}{'Maverick\\'s Rate':<18}{'Payer Median':<15}{'% Below':<10}")
+    lines.append(f"{'Payer':<19}{'CPT':<8}{'Description':<23}{'Our Rate':<18}{'Payer Median':<15}{'% Below':<10}")
     lines.append("─" * 93)
     
     for _, row in top10.iterrows():
         desc = cpt_desc.get(row['billing_code'], "")[:21]
         lines.append(
             f"{row['payer_name']:<19}{row['billing_code']:<8}{desc:<23}"
-            f"${row['maverick_rate']:<17.2f}${row['payer_median']:<14.2f}{row['pct_below']:<10.1f}%"
+            f"${row['our_rate']:<17.2f}${row['payer_median']:<14.2f}{row['pct_below']:<10.1f}%"
         )
     
     lines.append("```\n")

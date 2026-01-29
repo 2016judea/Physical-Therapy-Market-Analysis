@@ -1,28 +1,63 @@
 #!/usr/bin/env python3
-"""Quick NPPES loader for MN PT providers."""
+"""
+NPPES loader for PT providers.
 
+Loads physical therapists from the NPPES API based on configured zip prefixes.
+Uses user_config.json if available, otherwise defaults to all MN zips.
+
+Usage:
+    python scripts/load_mn_nppes.py
+    python scripts/load_mn_nppes.py --zips 551,553,554
+"""
+
+import argparse
+import json
 import httpx
 import time
+from pathlib import Path
 from src.storage import RatesDatabase
+from src.config import get_data_dir
 
 NPPES_API = "https://npiregistry.cms.hhs.gov/api/"
-MN_ZIPS = ["550", "551", "553", "554", "556", "557", "558", "559",
-           "560", "561", "562", "563", "564", "565", "566", "567"]
+
+# Default: all Minnesota zip prefixes
+DEFAULT_MN_ZIPS = [
+    "550", "551", "553", "554", "556", "557", "558", "559",
+    "560", "561", "562", "563", "564", "565", "566", "567"
+]
+
 TAXONOMIES = [
     ("225100000X", "Physical Therapist"),
     ("225200000X", "Physical Therapy Assistant"),
 ]
 
 
-def fetch_all():
-    """Fetch all MN PT providers."""
+def get_zip_prefixes() -> list[str]:
+    """Get zip prefixes from user config or defaults."""
+    config_file = get_data_dir() / "user_config.json"
+    if config_file.exists():
+        with open(config_file) as f:
+            config = json.load(f)
+        zips = config.get("zip_prefixes", [])
+        if zips:
+            return zips
+    return DEFAULT_MN_ZIPS
+
+
+def fetch_all(zip_prefixes: list[str] = None):
+    """Fetch PT providers for the given zip prefixes."""
+    if zip_prefixes is None:
+        zip_prefixes = get_zip_prefixes()
+    
     providers = {}  # npi -> provider dict
+    
+    print(f"Searching zip prefixes: {', '.join(zip_prefixes)}")
     
     with httpx.Client(timeout=60) as client:
         for tax_code, tax_desc in TAXONOMIES:
             print(f"\nFetching {tax_desc}...")
             
-            for zip_prefix in MN_ZIPS:
+            for zip_prefix in zip_prefixes:
                 skip = 0
                 while True:
                     params = {
@@ -116,7 +151,19 @@ def load_to_db(providers):
 
 
 if __name__ == "__main__":
-    print("Loading MN PT providers from NPPES API...")
-    providers = fetch_all()
+    parser = argparse.ArgumentParser(description="Load PT providers from NPPES")
+    parser.add_argument(
+        "--zips", 
+        type=str, 
+        help="Comma-separated zip prefixes (e.g., 551,553,554)"
+    )
+    args = parser.parse_args()
+    
+    zip_prefixes = None
+    if args.zips:
+        zip_prefixes = [z.strip() for z in args.zips.split(",")]
+    
+    print("Loading PT providers from NPPES API...")
+    providers = fetch_all(zip_prefixes)
     load_to_db(providers)
     print("Done!")

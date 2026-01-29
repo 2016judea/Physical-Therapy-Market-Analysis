@@ -6,11 +6,11 @@ Competitive rate intelligence for PT contract negotiations using Transparency in
 
 ## Overview
 
-This tool ingests negotiated rate data from health insurance payers and generates competitive analysis reports for physical therapy providers in the Saint Paul metro area.
+This tool ingests negotiated rate data from health insurance payers and generates competitive analysis reports for physical therapy providers in your local market.
 
 **What it does:**
 - Extracts PT-specific rates from payer Transparency in Coverage (TiC) files
-- Compares Maverick Physiotherapy rates against 36 local competitors
+- Compares your practice's rates against local competitors
 - Identifies renegotiation opportunities where rates are below market median
 - Generates markdown reports for easy sharing
 
@@ -21,17 +21,17 @@ This tool ingests negotiated rate data from health insurance payers and generate
 ```mermaid
 flowchart LR
     subgraph Input
-        A[("Payer TiC Files\n(JSON/GZIP)")]
-        B[("NPPES\nProvider Data")]
+        A[("Payer TiC Files")]
+        B[("NPPES Provider Data")]
     end
     
     subgraph Processing
-        C["Ingestion\nScripts"]
-        D[("DuckDB\nrates.duckdb")]
+        C["Ingestion Scripts"]
+        D[("DuckDB")]
     end
     
     subgraph Output
-        E["Competitive\nReports"]
+        E["Competitive Reports"]
     end
     
     A --> C
@@ -47,14 +47,13 @@ flowchart LR
 ```mermaid
 flowchart TD
     subgraph Payers
-        HP["HealthPartners\nType 1 NPIs"]
-        UC["UCare\nType 2 NPIs"]
-        BCBS["BCBS Minnesota\nType 1 & 2"]
-        UHC["UnitedHealthcare\nNo PT rates"]
+        HP["HealthPartners"]
+        UC["UCare"]
+        BCBS["BCBS Minnesota"]
     end
     
     subgraph Database
-        DB[("DuckDB\n~15K rates\n37 providers\n39 CPT codes")]
+        DB[("DuckDB")]
     end
     
     subgraph Reports
@@ -81,18 +80,27 @@ flowchart TD
 
 ```bash
 # Clone and setup
-git clone https://github.com/your-repo/mason_pt_data.git
-cd mason_pt_data
+git clone https://github.com/2016judea/Physical-Therapy-Market-Analysis.git
+cd Physical-Therapy-Market-Analysis
 
 # Create virtual environment
 python -m venv .venv
 source .venv/bin/activate
 
-# Install dependencies
+# Install package
 pip install -e .
 
-# Generate reports (after data is ingested)
-python scripts/generate_competitive_report.py
+# Interactive setup - configure your NPIs and location
+tic init
+
+# Run full ingestion pipeline
+tic ingest
+
+# Generate competitive analysis reports
+tic report
+
+# Check status anytime
+tic status
 ```
 
 ---
@@ -100,17 +108,19 @@ python scripts/generate_competitive_report.py
 ## Project Structure
 
 ```
-mason_pt_data/
+pt_rate_analysis/
 ├── README.md
 ├── AGENTS.md                 # AI agent instructions
 ├── pyproject.toml
 │
 ├── config/
-│   ├── cpt_codes.yaml        # 39 PT CPT codes to extract
+│   ├── cpt_codes.yaml        # PT CPT codes to extract
 │   └── payers.yaml           # Payer configurations
 │
 ├── scripts/
 │   ├── generate_competitive_report.py   # Main report generator
+│   ├── ingest_healthpartners.py         # HealthPartners data ingestion
+│   ├── ingest_ucare.py                  # UCare data ingestion
 │   ├── ingest_bcbs_local.py             # BCBS data ingestion
 │   ├── scan_bcbs_groups.py              # BCBS provider group scanner
 │   └── load_mn_nppes.py                 # Load provider NPIs
@@ -134,8 +144,8 @@ mason_pt_data/
 
 | Report | Description |
 |--------|-------------|
-| `local_competitor_rates_by_clinic.md` | Maverick vs competitor clinics (Type 2 NPIs) |
-| `local_competitor_rates_by_individual.md` | Mason/Eric vs individual PTs (Type 1 NPIs) |
+| `local_competitor_rates_by_clinic.md` | Primary clinic vs competitor clinics (Type 2 NPIs) |
+| `local_competitor_rates_by_individual.md` | Primary individuals vs individual PTs (Type 1 NPIs) |
 | `median_payer_rates_by_cpt_code.md` | Rate summary across all payers |
 | `underlying_data_summary.md` | Data coverage and limitations |
 | `renegotiation_opportunities.md` | Rates below market median |
@@ -146,23 +156,26 @@ mason_pt_data/
 
 | Payer | Status | Notes |
 |-------|--------|-------|
-| BCBS Minnesota | Ingested | Complex ingestion via provider group mapping |
-| HealthPartners | Ingested | Direct NPI match, Type 1 only |
-| UCare | Ingested | Direct NPI match, Type 2 only |
-| UnitedHealthcare | Not available | NPIs exist but not linked to PT rates |
-| Medica | Not ingested | Bot protection |
-| Cigna | Not ingested | Bot protection |
-| Medicare/Medicaid | Not ingested | Different data format |
+| BCBS Minnesota | ✅ Supported | Complex ingestion via provider group mapping |
+| HealthPartners | ✅ Supported | Direct ZIP downloads, Type 1 NPIs only |
+| UCare | ✅ Supported | TOC index file, Type 2 NPIs only |
+| UnitedHealthcare | ⚠️ No usable data | NPIs exist in files but not linked to PT rate entries |
+| Aetna | ❌ Not supported | National payer with HealthSparq portal; complex file structure |
+| Medica | ❌ Not supported | HealthSparq portal with bot protection |
+| Cigna | ❌ Not supported | Browser automation required; CAPTCHA protection |
+| Humana | ❌ Not supported | Bot protection and CAPTCHA requirements |
+| Medicare/Medicaid | ❌ Not supported | CMS/DHS publish separately in different formats |
 
 ---
 
-## Key NPIs
+## Configuration
 
-| Provider | NPI | Type |
-|----------|-----|------|
-| Maverick Physiotherapy LLC | `1073185393` | Organization |
-| Mason Richlen DPT, PT | `1326610783` | Individual |
-| Eric Niemyer DPT, PT | `1699341354` | Individual |
+Run `tic init` to configure your practice NPIs and geographic area interactively. This stores your settings in `data/user_config.json`:
+
+- **Clinic NPI** - Your practice's Type 2 (organization) NPI
+- **Individual NPIs** - Type 1 NPIs for individual providers
+- **Zip Prefixes** - 3-digit prefixes to filter local competitors (e.g., `551` for Saint Paul, `554` for Minneapolis)
+- **Practice Name** - Used in report headers
 
 ---
 
@@ -205,22 +218,74 @@ erDiagram
 
 ---
 
-## Data Ingestion
+## CLI Reference
+
+The `tic` command provides a unified interface for the entire pipeline:
+
+| Command | Description |
+|---------|-------------|
+| `tic init` | Interactive setup - configure NPIs and zip prefixes |
+| `tic ingest` | Run full data ingestion for all payers |
+| `tic ingest -p healthpartners` | Ingest specific payer only |
+| `tic ingest --skip-bcbs` | Skip BCBS (faster, excludes slow 2-4hr ingestion) |
+| `tic report` | Generate competitive analysis reports |
+| `tic status` | Show database statistics and configuration |
+| `tic reset` | Delete all data and start fresh |
+
+### Example Session
+
+```bash
+$ tic init
+PT Rate Analysis - Initial Setup
+
+Primary clinic NPI (Type 2): 1234567890
+Enter individual provider NPIs (empty line to finish):
+  Add NPI: 1111111111
+  Add NPI: 2222222222
+  Add NPI: 
+Zip prefixes (comma-separated) [551]: 551, 553
+Practice name (for reports) [Our Practice]: ABC Physical Therapy
+
+✓ Configuration saved!
+Load local provider data from NPPES now? [Y/n]: y
+```
+
+---
+
+## Manual Data Ingestion
+
+If you prefer running scripts directly instead of the CLI:
 
 ### Step 1: Load Provider NPIs
 ```bash
 python scripts/load_mn_nppes.py
 ```
+Fetches physical therapists from the NPPES API for your configured zip prefixes and loads them into the database.
 
-### Step 2: Ingest BCBS (requires group scan first)
+### Step 2: Ingest Payer Data
+
+#### HealthPartners (fastest)
 ```bash
-# One-time: scan provider groups
+python scripts/ingest_healthpartners.py
+```
+Downloads ZIP files directly from HealthPartners. Type 1 NPIs only.
+
+#### UCare (fast)
+```bash
+python scripts/ingest_ucare.py
+```
+Fetches TOC index and downloads MRF files. Type 2 NPIs only.
+
+#### BCBS Minnesota (slow, ~2-4 hours)
+```bash
+# One-time: scan provider groups to map NPIs to group IDs
 python scripts/scan_bcbs_groups.py
 
-# Ingest rates
+# Ingest rates from Local files
 nohup python scripts/ingest_bcbs_local.py > logs/bcbs_local.log 2>&1 &
 tail -f logs/bcbs_local.log
 ```
+BCBS requires a two-phase approach: first scanning provider group files to find which groups contain your NPIs, then ingesting rates from "Local" network files.
 
 ### Step 3: Generate Reports
 ```bash
@@ -231,13 +296,14 @@ python scripts/generate_competitive_report.py
 
 ## Sample Output
 
-Renegotiation Opportunities:
+Renegotiation Opportunities report identifies CPT codes where your rates are below market median:
+
 ```
-Payer              CPT     Description            Maverick's Rate   Payer Median   % Below
+Payer              CPT     Description            Your Rate         Payer Median   % Below
 ─────────────────────────────────────────────────────────────────────────────────────────
-BCBS Minnesota     97110   Therapeutic exercises  $18.50            $20.48         -9.7%
-HealthPartners     97161   PT eval low            $78.00            $92.00         -15.2%
-UCare              97530   Therapeutic activities $34.00            $38.00         -10.5%
+BCBS Minnesota     97110   Therapeutic exercises  $XX.XX            $XX.XX         -X.X%
+HealthPartners     97161   PT eval low            $XX.XX            $XX.XX         -X.X%
+UCare              97530   Therapeutic activities $XX.XX            $XX.XX         -X.X%
 ```
 
 ---

@@ -10,10 +10,20 @@ This is a PT (physical therapy) rate analysis tool for the Saint Paul metro area
 # Activate virtual environment
 source .venv/bin/activate
 
-# Run report generation
+# CLI commands (preferred)
+tic init          # Interactive setup for NPIs and location
+tic ingest        # Run full data ingestion pipeline
+tic report        # Generate competitive analysis reports
+tic status        # Show database stats
+
+# Manual scripts (alternative)
+python scripts/load_mn_nppes.py
+python scripts/ingest_healthpartners.py
+python scripts/ingest_ucare.py
+python scripts/ingest_bcbs_local.py
 python scripts/generate_competitive_report.py
 
-# Check database
+# Check database directly
 python -c "from src.storage import RatesDatabase; db = RatesDatabase(); print(db.get_rate_stats()); db.close()"
 ```
 
@@ -41,9 +51,10 @@ python -c "from src.storage import RatesDatabase; db = RatesDatabase(); print(db
 
 ## Key NPIs
 
-- Maverick Physiotherapy LLC (Type 2): `1073185393`
-- Mason Richlen DPT, PT (Type 1): `1326610783`  
-- Eric Niemyer DPT, PT (Type 1): `1699341354`
+Configure target NPIs in `scripts/generate_competitive_report.py`:
+- `PRIMARY_TYPE2_NPI` - Primary clinic (Type 2)
+- `PRIMARY_TYPE1_NPI_A` - Primary individual A (Type 1)
+- `PRIMARY_TYPE1_NPI_B` - Primary individual B (Type 1)
 
 ## Payer-Specific Notes
 
