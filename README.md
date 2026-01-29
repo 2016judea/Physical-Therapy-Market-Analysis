@@ -296,14 +296,37 @@ python scripts/generate_competitive_report.py
 
 ## Sample Output
 
-Renegotiation Opportunities report identifies CPT codes where your rates are below market median:
-
+### Clinic Comparison (Type 2 NPIs)
 ```
-Payer              CPT     Description            Your Rate         Payer Median   % Below
+CPT     Description           Your Rate  Rank   Lowest                   Highest
+────────────────────────────────────────────────────────────────────────────────
+97110   Therapeutic exercises $XX.XX     3/12   $XX.XX (Competitor A)    $XX.XX (Competitor B)
+97140   Manual therapy        $XX.XX     1/12   $XX.XX (Competitor C)    $XX.XX (Your Clinic)
+```
+
+### Individual PT Comparison (Type 1 NPIs)
+```
+CPT     Description           Indiv A    Rank   Indiv B    Rank   Lowest         Highest
 ─────────────────────────────────────────────────────────────────────────────────────────
-BCBS Minnesota     97110   Therapeutic exercises  $XX.XX            $XX.XX         -X.X%
-HealthPartners     97161   PT eval low            $XX.XX            $XX.XX         -X.X%
-UCare              97530   Therapeutic activities $XX.XX            $XX.XX         -X.X%
+97161   PT eval low           $XX.XX     5/42   $XX.XX     8/42   $XX.XX         $XX.XX
+97530   Therapeutic activities$XX.XX     2/42   $XX.XX     3/42   $XX.XX         $XX.XX
+```
+
+### Payer Rate Summary
+```
+CPT     Description           BCBS Minnesota  HealthPartners  UCare
+───────────────────────────────────────────────────────────────────
+97110   Therapeutic exercises $XX.XX          $XX.XX          $XX.XX
+97140   Manual therapy        $XX.XX          $XX.XX          $XX.XX
+97161   PT eval low           $XX.XX          $XX.XX          $XX.XX
+```
+
+### Renegotiation Opportunities
+```
+Payer              CPT     Description            Your Rate   Payer Median   % Below
+────────────────────────────────────────────────────────────────────────────────────
+BCBS Minnesota     97110   Therapeutic exercises  $XX.XX      $XX.XX         -X.X%
+HealthPartners     97161   PT eval low            $XX.XX      $XX.XX         -X.X%
 ```
 
 ---
