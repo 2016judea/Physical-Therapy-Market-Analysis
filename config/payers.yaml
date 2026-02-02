@@ -7,32 +7,32 @@ payers:
   # Excellent compliance (5/5) - direct ZIP downloads
   # These are MN-SPECIFIC files with MN providers
   - name: "HealthPartners"
-    index_url: "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_HP-Select_in-network-rates.zip"
+    index_url: "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_HP-Select_in-network-rates.zip"
     enabled: true
     file_type: "zip"
     notes: "MN-based integrated system. MN-specific data. ~687MB per network."
     # Additional MN networks to process (19 total networks):
     additional_files:
       # Core MN networks (already loaded)
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Open-Access+Simplica_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Cornerstone_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Achieve-Large-Employer_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Achieve-Small-Employer+Peak_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_State-of-MN_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Open-Access+Simplica_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Cornerstone_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Achieve-Large-Employer_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Achieve-Small-Employer+Peak_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_State-of-MN_in-network-rates.zip"
       # Additional networks
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Coborns_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Essentia_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Essentia-ND_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_MercyOne_Tier1_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Monument-Health-Caregiver_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Northern-Trust_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Olivia_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Spencer-Mahaska_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Trinity-ND_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_UIHC-Tier1_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_UIHC-Tier2_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_VGM_in-network-rates.zip"
-      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-01-01_HealthPartners_Waterloo-School_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Coborns_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Essentia_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Essentia-ND_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_MercyOne_Tier1_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Monument-Health-Caregiver_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Northern-Trust_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Olivia_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Spencer-Mahaska_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Trinity-ND_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_UIHC-Tier1_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_UIHC-Tier2_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_VGM_in-network-rates.zip"
+      - "https://mrfproddestinationdata.blob.core.windows.net/mrf-output/2026-02-01_HealthPartners_Waterloo-School_in-network-rates.zip"
 
   # UCare - MN-based nonprofit (Medicare/Medicaid focused)
   - name: "UCare"

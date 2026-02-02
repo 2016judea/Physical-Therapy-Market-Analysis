@@ -47,6 +47,7 @@ flowchart LR
 ```mermaid
 flowchart TD
     subgraph Payers
+        HP["HealthPartners"]
         UC["UCare"]
         BCBS["BCBS Minnesota"]
     end
@@ -61,6 +62,7 @@ flowchart TD
         R3["Data Coverage"]
     end
     
+    HP --> DB
     UC --> DB
     BCBS --> DB
     DB --> R1
@@ -150,7 +152,7 @@ pt_rate_analysis/
 |-------|--------|-------|
 | BCBS Minnesota | ✅ Supported | Complex ingestion via provider group mapping; uses both Type 1 and Type 2 NPIs |
 | UCare | ✅ Supported | TOC index file, Type 2 NPIs only |
-| HealthPartners | ⚠️ Not usable | Ingestion works but no Maverick PT rates found in files |
+| HealthPartners | ✅ Supported | Type 1 NPIs only; aggregated to clinic level via npi_groups mapping |
 | UnitedHealthcare | ⚠️ Not usable | NPIs exist in files but not linked to PT rate entries |
 | Aetna | ❌ Not supported | National payer with HealthSparq portal; complex file structure |
 | Medica | ❌ Not supported | HealthSparq portal with bot protection |
@@ -256,6 +258,12 @@ Fetches physical therapists from the NPPES API for your configured zip prefixes 
 
 ### Step 2: Ingest Payer Data
 
+#### HealthPartners (fast)
+```bash
+python scripts/ingest_healthpartners.py
+```
+Downloads ZIP files directly. Type 1 NPIs aggregated to clinic level.
+
 #### UCare (fast)
 ```bash
 python scripts/ingest_ucare.py
@@ -291,10 +299,10 @@ cpt_code,your_rate,market_median,percentile,rank,total_clinics,lowest_rate,highe
 
 ### Payer Rate Summary (CSV)
 ```
-cpt_code,description,bcbs_minnesota_median,ucare_median
-97110,Therapeutic exercises,44.50,41.00
-97140,Manual therapy,47.00,45.00
-97161,PT eval low complexity,85.00,82.00
+cpt_code,description,bcbs_minnesota_median,healthpartners_median,ucare_median
+97110,Therapeutic exercises,44.50,38.00,41.00
+97140,Manual therapy,47.00,42.00,45.00
+97161,PT eval low complexity,85.00,78.00,82.00
 ```
 
 ---

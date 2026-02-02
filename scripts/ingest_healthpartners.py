@@ -45,6 +45,11 @@ def get_hp_file_urls() -> list[str]:
 
 def process_zip_file(url: str, db: RatesDatabase, target_npis: set[str], target_cpts: set[str]) -> int:
     """Download and process a HealthPartners ZIP file."""
+    # Check if this ZIP was already fully processed
+    if db.is_file_ingested(url):
+        console.print(f"[dim]Skipping (already ingested): {url.split('/')[-1]}[/dim]")
+        return 0
+    
     console.print(f"[blue]Downloading:[/blue] {url.split('/')[-1]}")
     
     try:
@@ -101,6 +106,10 @@ def process_zip_file(url: str, db: RatesDatabase, target_npis: set[str], target_
             except Exception as e:
                 db.log_ingestion_error(log_id, str(e))
                 console.print(f"  [red]Error processing {json_file}: {e}[/red]")
+    
+    # Mark the ZIP itself as complete so we skip it next time
+    zip_log_id = db.log_ingestion_start("HealthPartners", url)
+    db.log_ingestion_complete(zip_log_id, total_inserted)
     
     return total_inserted
 
