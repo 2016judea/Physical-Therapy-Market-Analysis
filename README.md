@@ -12,7 +12,7 @@ This tool ingests negotiated rate data from health insurance payers and generate
 - Extracts PT-specific rates from payer Transparency in Coverage (TiC) files
 - Compares your practice's rates against local competitors
 - Identifies renegotiation opportunities where rates are below market median
-- Generates markdown reports for easy sharing
+- Generates CSV reports for easy sharing and analysis
 
 ---
 
@@ -47,7 +47,6 @@ flowchart LR
 ```mermaid
 flowchart TD
     subgraph Payers
-        HP["HealthPartners"]
         UC["UCare"]
         BCBS["BCBS Minnesota"]
     end
@@ -58,20 +57,15 @@ flowchart TD
     
     subgraph Reports
         R1["Clinic Comparison"]
-        R2["Individual PT Comparison"]
-        R3["Payer Rate Summary"]
-        R4["Data Coverage"]
-        R5["Renegotiation Opps"]
+        R2["Payer Rate Summary"]
+        R3["Data Coverage"]
     end
     
-    HP --> DB
     UC --> DB
     BCBS --> DB
     DB --> R1
     DB --> R2
     DB --> R3
-    DB --> R4
-    DB --> R5
 ```
 
 ---
@@ -144,11 +138,9 @@ pt_rate_analysis/
 
 | Report | Description |
 |--------|-------------|
-| `local_competitor_rates_by_clinic.md` | Primary clinic vs competitor clinics (Type 2 NPIs) |
-| `local_competitor_rates_by_individual.md` | Primary individuals vs individual PTs (Type 1 NPIs) |
-| `median_payer_rates_by_cpt_code.md` | Rate summary across all payers |
-| `underlying_data_summary.md` | Data coverage and limitations |
-| `renegotiation_opportunities.md` | Rates below market median |
+| `clinic_competitive_comparison.csv` | Primary clinic vs competitor clinics by CPT code |
+| `payer_rates_by_cpt.csv` | Rate summary across all payers |
+| `clinic_data_summary.csv` | Data coverage per clinic/payer |
 
 ---
 
@@ -156,10 +148,10 @@ pt_rate_analysis/
 
 | Payer | Status | Notes |
 |-------|--------|-------|
-| BCBS Minnesota | ✅ Supported | Complex ingestion via provider group mapping |
-| HealthPartners | ✅ Supported | Direct ZIP downloads, Type 1 NPIs only |
+| BCBS Minnesota | ✅ Supported | Complex ingestion via provider group mapping; uses both Type 1 and Type 2 NPIs |
 | UCare | ✅ Supported | TOC index file, Type 2 NPIs only |
-| UnitedHealthcare | ⚠️ No usable data | NPIs exist in files but not linked to PT rate entries |
+| HealthPartners | ⚠️ Not usable | Ingestion works but no Maverick PT rates found in files |
+| UnitedHealthcare | ⚠️ Not usable | NPIs exist in files but not linked to PT rate entries |
 | Aetna | ❌ Not supported | National payer with HealthSparq portal; complex file structure |
 | Medica | ❌ Not supported | HealthSparq portal with bot protection |
 | Cigna | ❌ Not supported | Browser automation required; CAPTCHA protection |
@@ -226,8 +218,8 @@ The `tic` command provides a unified interface for the entire pipeline:
 |---------|-------------|
 | `tic init` | Interactive setup - configure NPIs and zip prefixes |
 | `tic ingest` | Run full data ingestion for all payers |
-| `tic ingest -p healthpartners` | Ingest specific payer only |
-| `tic ingest --skip-bcbs` | Skip BCBS (faster, excludes slow 2-4hr ingestion) |
+| `tic ingest -p ucare` | Ingest specific payer only |
+| `tic ingest --skip-bcbs` | Skip BCBS (faster, excludes slow ingestion) |
 | `tic report` | Generate competitive analysis reports |
 | `tic status` | Show database statistics and configuration |
 | `tic reset` | Delete all data and start fresh |
@@ -264,12 +256,6 @@ Fetches physical therapists from the NPPES API for your configured zip prefixes 
 
 ### Step 2: Ingest Payer Data
 
-#### HealthPartners (fastest)
-```bash
-python scripts/ingest_healthpartners.py
-```
-Downloads ZIP files directly from HealthPartners. Type 1 NPIs only.
-
 #### UCare (fast)
 ```bash
 python scripts/ingest_ucare.py
@@ -296,37 +282,19 @@ python scripts/generate_competitive_report.py
 
 ## Sample Output
 
-### Clinic Comparison (Type 2 NPIs)
+### Clinic Competitive Comparison (CSV)
 ```
-CPT     Description           Your Rate  Rank   Lowest                   Highest
-────────────────────────────────────────────────────────────────────────────────
-97110   Therapeutic exercises $XX.XX     3/12   $XX.XX (Competitor A)    $XX.XX (Competitor B)
-97140   Manual therapy        $XX.XX     1/12   $XX.XX (Competitor C)    $XX.XX (Your Clinic)
-```
-
-### Individual PT Comparison (Type 1 NPIs)
-```
-CPT     Description           Indiv A    Rank   Indiv B    Rank   Lowest         Highest
-─────────────────────────────────────────────────────────────────────────────────────────
-97161   PT eval low           $XX.XX     5/42   $XX.XX     8/42   $XX.XX         $XX.XX
-97530   Therapeutic activities$XX.XX     2/42   $XX.XX     3/42   $XX.XX         $XX.XX
+cpt_code,your_rate,market_median,percentile,rank,total_clinics,lowest_rate,highest_rate
+97110,45.00,42.50,65,8,24,35.00,55.00
+97140,48.00,46.00,58,10,24,38.00,58.00
 ```
 
-### Payer Rate Summary
+### Payer Rate Summary (CSV)
 ```
-CPT     Description           BCBS Minnesota  HealthPartners  UCare
-───────────────────────────────────────────────────────────────────
-97110   Therapeutic exercises $XX.XX          $XX.XX          $XX.XX
-97140   Manual therapy        $XX.XX          $XX.XX          $XX.XX
-97161   PT eval low           $XX.XX          $XX.XX          $XX.XX
-```
-
-### Renegotiation Opportunities
-```
-Payer              CPT     Description            Your Rate   Payer Median   % Below
-────────────────────────────────────────────────────────────────────────────────────
-BCBS Minnesota     97110   Therapeutic exercises  $XX.XX      $XX.XX         -X.X%
-HealthPartners     97161   PT eval low            $XX.XX      $XX.XX         -X.X%
+cpt_code,description,bcbs_minnesota_median,ucare_median
+97110,Therapeutic exercises,44.50,41.00
+97140,Manual therapy,47.00,45.00
+97161,PT eval low complexity,85.00,82.00
 ```
 
 ---
