@@ -44,15 +44,14 @@ def fetch_in_network_files(index_url: str) -> list[dict]:
     
     resp = httpx.get(index_url, timeout=60, follow_redirects=True)
     resp.raise_for_status()
-    data = resp.json()
-    
+    # The UCare TOC is hand-edited and not valid JSON (missing commas between
+    # entries, seen 2026-10-04) -- pull the in-network locations out by regex.
+    import re
     files = []
-    for rs in data.get('reporting_structure', []):
-        for inf in rs.get('in_network_files', []):
-            loc = inf.get('location', '')
-            desc = inf.get('description', '')
-            if loc.startswith('http'):
-                files.append({'url': loc, 'desc': desc})
+    for m in re.finditer(r'"description"\s*:\s*"([^"]*)"\s*,\s*"location"\s*:\s*"(https?://[^"]+)"', resp.text):
+        desc, loc = m.group(1), m.group(2)
+        if 'InNetwork' in loc or 'in-network' in loc.lower() or 'in-network' in desc.lower():
+            files.append({'url': loc, 'desc': loc.rsplit('/',1)[-1].split('?')[0]})
     
     # Deduplicate by URL
     seen = set()
@@ -88,7 +87,8 @@ def process_mrf_file(file_info: dict, db: RatesDatabase, target_npis: set[str]) 
         else:
             content = resp.content
         
-        data = json.loads(content)
+        # Fulcrum_InNetwork.json carries a stray cp1252 byte (0x96) -- decode leniently.
+        data = json.loads(content.decode('utf-8', errors='replace'))
         
         # Parse rates, filtering to our target NPIs
         records = list(parse_tic_file_simple(
