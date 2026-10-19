@@ -57,7 +57,12 @@ def fetch_all(zip_prefixes: list[str] = None):
         for tax_code, tax_desc in TAXONOMIES:
             print(f"\nFetching {tax_desc}...")
             
-            for zip_prefix in zip_prefixes:
+            # The NPPES API clamps `skip` at 1,000 (limit 200): a prefix with more than 1,200
+            # providers returned the same page forever (551* did, 2026-10: logs/nppes.log). A
+            # prefix that fills 1,200 rows is split one digit deeper and re-queried.
+            queue = [f"{p}*" for p in zip_prefixes]
+            while queue:
+                zip_prefix = queue.pop(0).rstrip("*")
                 skip = 0
                 while True:
                     params = {
@@ -114,6 +119,12 @@ def fetch_all(zip_prefixes: list[str] = None):
                     print(f"  ZIP {zip_prefix}: {len(providers)} total", end="\r")
                     
                     if len(results) < 200:
+                        break
+                    if skip >= 1000:
+                        if len(zip_prefix) < 5:
+                            queue.extend(f"{zip_prefix}{d}*" for d in range(10))
+                        else:
+                            print(f"\n  WARNING: {zip_prefix} hit the 1,200-row NPPES ceiling; rows beyond it were not fetched")
                         break
                     skip += 200
                     time.sleep(0.15)
